@@ -1,0 +1,6 @@
+# Root ignore rules (applies across the whole repo)
+node_modules/
+
+# Vite build outputs
+frontend/dist/
+

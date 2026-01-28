@@ -26,3 +26,29 @@
   padding: 24px 16px;
 }
 
+.auction-card {
+  transition: background-color 150ms ease-out, box-shadow 150ms ease-out, transform 150ms ease-out;
+}
+
+.auction-card--highlight {
+  animation: bidFlash 600ms ease-out;
+}
+
+@keyframes bidFlash {
+  0% {
+    background-color: #ecfdf5;
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+    transform: translateY(0);
+  }
+  40% {
+    background-color: #dcfce7;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+    transform: translateY(-1px);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+    transform: translateY(0);
+  }
+}
+
