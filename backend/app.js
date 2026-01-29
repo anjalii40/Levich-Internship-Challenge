@@ -16,8 +16,29 @@ const { auctionStore } = require("./auctionStore");
 function createApp() {
   const app = express();
 
-  // Basic middleware
-  app.use(cors());
+  // CORS configuration
+  const allowedOrigins = [
+    'http://localhost:3000',      // Local development (backend)
+    'http://localhost:5173',      // Local development (frontend - Vite)
+    'https://levich-internship-challenge-phi.vercel.app', // Vercel frontend
+    'https://brave-truth-production.up.railway.app', // Railway backend (for testing)
+  ];
+
+  const corsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS not allowed'), false);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+
+  app.use(cors(corsOptions));
   app.use(express.json());
 
   // Health check route

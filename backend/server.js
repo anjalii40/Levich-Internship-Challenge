@@ -9,13 +9,21 @@ const { registerSocketHandlers } = require("./socket");
 const PORT = process.env.PORT || 3000;
 const app = createApp();
 
+// CORS configuration for Socket.io
+const allowedOrigins = [
+  'http://localhost:3000',      // Local development (backend)
+  'http://localhost:5173',      // Local development (frontend - Vite)
+  'https://levich-internship-challenge-phi.vercel.app', // Vercel frontend
+];
+
 // Create raw HTTP server so we can attach Socket.io
 const httpServer = http.createServer(app);
 
-// Create Socket.io server and configure CORS as needed
+// Create Socket.io server and configure CORS
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: allowedOrigins,
+    credentials: true,
     methods: ["GET", "POST"],
   },
 });
