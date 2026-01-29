@@ -1,30 +1,115 @@
 # Levich-Internship-Challenge
-# Express + Socket.io Backend (No Frontend)
+## Real-Time Auction System
 
-This is a minimal, **cleanly modularized** Node.js backend using **Express** for HTTP routes and **Socket.io** for real-time communication. There is **no frontend code** included.
+This is a **modularized full-stack project** with:
+- 🔧 **Backend**: Express.js + Socket.io for real-time bidding
+- 🎨 **Frontend**: React + Vite for a responsive UI
 
-## Structure
-
-- `server.js` – entry point; creates HTTP server, attaches Socket.io, and starts listening.
-- `app.js` – creates and configures the Express app (middleware + routes). No server logic.
-- `socket.js` – defines all Socket.io event handlers (connection, rooms, messages).
+### Project Structure
+```
+.
+├── backend/              # Node.js backend (Express + Socket.io)
+│   ├── server.js        # Entry point; creates HTTP + Socket.io server
+│   ├── app.js           # Express app configuration (routes + middleware)
+│   ├── socket.js        # Socket.io event handlers for real-time bidding
+│   ├── auctionStore.js  # In-memory auction data store
+│   ├── test-socket.js   # Socket.io connection test
+│   └── Dockerfile       # Docker configuration for backend
+├── frontend/            # React + Vite frontend
+│   ├── src/
+│   ├── index.html
+│   ├── .env.example     # Environment variables template
+│   ├── .env.local       # Local configuration (Git ignored)
+│   └── vite.config.js   # Vite configuration
+├── package.json         # Root dependencies
+└── nodemon.json         # Watch configuration for development
+```
 
 ## Getting Started
 
+### Backend Setup
 ```bash
+# Install dependencies (from root)
 npm install
-npm run dev    # with nodemon
-# or
-npm start      # plain node
+
+# Start backend (development with auto-reload)
+npm run dev
+
+# Or start without auto-reload
+npm start
 ```
 
-By default, the server listens on port `3000`. You can override this using the `PORT` environment variable.
-
-Example:
-
+Backend listens on `http://localhost:3000` by default. Override with:
 ```bash
 PORT=4000 npm start
 ```
+
+### Frontend Setup
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Create environment config
+cp .env.example .env.local
+# Edit .env.local to point to your backend URL:
+# VITE_API_BASE_URL=http://localhost:3000  (local)
+# or
+# VITE_API_BASE_URL=https://your-railway-url  (production)
+
+# Start development server
+npm run dev
+```
+
+Frontend runs on `http://localhost:5173` by default.
+
+---
+
+## Deployment
+
+### Backend (Already Deployed on Railway ✅)
+Your backend is deployed at: `https://brave-truth-production.up.railway.app`
+
+- **Service Status**: ACTIVE (green)
+- **Region**: us-west2
+- **Auto-deploys** on push to `main`
+
+### Frontend (Options)
+
+#### Option 1: Netlify (Recommended)
+```bash
+npm install -g netlify-cli
+cd frontend
+netlify deploy
+```
+
+#### Option 2: Vercel
+```bash
+npm install -g vercel
+cd frontend
+vercel
+```
+
+#### Option 3: Railway (alongside backend)
+Create a new service in Railway dashboard and connect your repo.
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Create `frontend/.env.local` (Git ignored) with:
+```env
+# For local development:
+VITE_API_BASE_URL=http://localhost:3000
+
+# For production (Railway deployed backend):
+VITE_API_BASE_URL=https://brave-truth-production.up.railway.app
+```
+
+See `frontend/.env.example` for more details.
 
 ## HTTP API
 
