@@ -12,11 +12,10 @@ COPY package.json package-lock.json* ./
 RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi
 
 # Copy source code
-COPY . .
+COPY backend/ ./backend/
 
 # The app listens on port 3000 by default
 EXPOSE 3000
 
 # Run the server
-CMD ["node", "server.js"]
-
+CMD ["node", "backend/server.js"]

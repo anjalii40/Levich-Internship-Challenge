@@ -27,4 +27,3 @@ registerSocketHandlers(io);
 httpServer.listen(PORT, () => {
   console.log(`HTTP server listening on port ${PORT}`);
 });
-

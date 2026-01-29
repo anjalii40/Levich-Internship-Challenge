@@ -77,4 +77,3 @@ const auctionStore = {
 module.exports = {
   auctionStore,
 };
-

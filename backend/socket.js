@@ -132,4 +132,3 @@ function registerSocketHandlers(io) {
 module.exports = {
   registerSocketHandlers,
 };
-
