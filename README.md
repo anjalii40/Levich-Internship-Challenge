@@ -31,14 +31,8 @@ The primary engineering focus is on **real-time behavior**, **race-condition han
 ## Architecture & Design Decisions
 
 ### System Architecture
-```mermaid
-graph TD
-    ClientA[Client A (React)] <-->|Socket.io| Server[Node.js Server]
-    ClientB[Client B (React)] <-->|Socket.io| Server
-    Server <-->|Read/Write| Store[In-Memory Auction Store]
-    Server -->|Interval Check| Lifecycle[Auction Lifecycle Manager]
-    Lifecycle -->|Update State| Store
-```
+
+![System Architecture](docs/system_architecture.png)
 
 ### 1. Server-Authoritative Time
 The system relies entirely on **server time** for auction duration and state transitions. Clients passively receive time updates. This prevents client-side manipulation (e.g., changing system clock) from affecting the auction logic.
@@ -66,14 +60,7 @@ To keep the system lightweight and focused on real-time mechanics:
 
 ## Auction Lifecycle
 
-```mermaid
-stateDiagram-v2
-    [*] --> Active
-    Active --> Ended: Timer reaches 0
-    Ended --> Break: Immediate Transition
-    Break --> Active: After 60s Break
-    Active --> Active: New Bid Placed
-```
+![Auction Lifecycle](docs/auction_lifecycle.png)
 
 1.  **Initialization**: Items load with specific, staggered end times.
 2.  **Bidding**: Users place bids. Highest bid is broadcasted to all.
@@ -81,18 +68,6 @@ stateDiagram-v2
 4.  **Result**: The final state is locked. A "Winner" banner overlays the item card.
 5.  **Restart Loop**: That specific item waits for its break duration, then resets and restarts automatically.
 
----
-
-## UI Gallery
-
-> *Placeholders for screenshots*
-
-| Dashboard View | Winning State | Mobile View |
-|:---:|:---:|:---:|
-| ![Dashboard View](docs/dashboard-placeholder.png) | ![Winning State](docs/winning-placeholder.png) | ![Mobile View](docs/mobile-placeholder.png) |
-| *Real-time grid with status indicators* | *Winner overlay with restart timer* | *Responsive visual layout* |
-
----
 
 ## Project Structure
 
