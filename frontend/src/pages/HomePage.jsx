@@ -56,6 +56,7 @@ export default function HomePage() {
       }
 
       if (payload.breakStatus !== undefined) {
+        console.log('[HomePage] Received breakStatus from socket:', payload.breakStatus)
         setBreakStatus(payload.breakStatus)
       }
 
@@ -67,6 +68,10 @@ export default function HomePage() {
             currentBid: payload.currentBid ?? item.currentBid,
             highestBidder: payload.highestBidder ?? item.highestBidder,
             endTime: payload.endTime ?? item.endTime,
+            breakStartTime:
+              payload.breakStartTime !== undefined
+                ? payload.breakStartTime
+                : item.breakStartTime,
           }
         }),
       )
@@ -165,7 +170,6 @@ export default function HomePage() {
                 key={item.id}
                 item={item}
                 serverNow={serverNow}
-                breakStatus={breakStatus}
                 isWinning={name && item.highestBidder === name}
                 isOutbid={lastOutbidItemId === item.id}
                 isUpdated={lastUpdatedItemId === item.id}

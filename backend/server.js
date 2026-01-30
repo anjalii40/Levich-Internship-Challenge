@@ -40,44 +40,40 @@ httpServer.listen(PORT, () => {
   setInterval(() => {
     const now = Date.now();
     const items = auctionStore.getAll();
-    const { breakStartTime, breakDuration } = auctionStore.getBreakStatus();
+    const BREAK_DURATION = auctionStore.BREAK_DURATION;
 
-    // Check if everything ended
-    const allEnded = items.every((item) => now >= item.endTime);
+    items.forEach((item) => {
+      // 1. Check if auction ended and needs to enter break
+      if (now >= item.endTime && !item.breakStartTime) {
+        console.log(`Auction ended for ${item.id}. Starting break period.`);
+        auctionStore.setItemBreakStartTime(item.id, now);
 
-    if (allEnded) {
-      if (!breakStartTime) {
-        console.log("All auctions ended. Starting break period.");
-        auctionStore.setBreakStartTime(now);
-
-        // Notify clients about break start
-        const status = auctionStore.getBreakStatus();
+        // Notify clients about break start for this item
         io.emit("UPDATE_BID", {
-          // Send a "dummy" update to trigger state sync or general status update
-          itemId: "ALL",
+          itemId: item.id,
           serverTime: now,
-          breakStatus: status,
-        });
-
-      } else if (now - breakStartTime >= breakDuration) {
-        console.log("Break ended. Restarting auctions.");
-        auctionStore.reset();
-
-        // Notify clients about restart (breakStatus will be null from store)
-        const newStatus = auctionStore.getBreakStatus();
-        const freshItems = auctionStore.getAll();
-
-        freshItems.forEach((item) => {
-          io.emit("UPDATE_BID", {
-            itemId: item.id,
-            currentBid: item.currentBid,
-            highestBidder: item.highestBidder,
-            endTime: item.endTime,
-            serverTime: Date.now(),
-            breakStatus: newStatus,
-          });
+          breakStartTime: now,
+          // We can also send breakDuration if client needs it dynamcially, 
+          // but usually fixed constant. 
         });
       }
-    }
-  }, 5000); // Check every 5 seconds
+      // 2. Check if break ended and needs to restart
+      else if (item.breakStartTime && now - item.breakStartTime >= BREAK_DURATION) {
+        console.log(`Break ended for ${item.id}. Restarting auction.`);
+
+        // Reset the item
+        const freshItem = auctionStore.resetItem(item.id);
+
+        // Notify clients about restart
+        io.emit("UPDATE_BID", {
+          itemId: freshItem.id,
+          currentBid: freshItem.currentBid,
+          highestBidder: freshItem.highestBidder,
+          endTime: freshItem.endTime,
+          serverTime: now,
+          breakStartTime: null, // Clear the break time on client
+        });
+      }
+    });
+  }, 1000); // Check every 1 second
 });

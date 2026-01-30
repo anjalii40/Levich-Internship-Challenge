@@ -10,6 +10,7 @@
  * - currentBid
  * - highestBidder
  * - endTime (timestamp in ms since epoch)
+ * - breakStartTime (timestamp in ms when break started, or null if active)
  *
  * NOTE:
  * - This is purely in-memory. Data is lost on server restart.
@@ -21,7 +22,6 @@ const now = Date.now();
 // Helper to compute future timestamps in minutes from now
 const minutesFromNow = (minutes) => now + minutes * 60 * 1000;
 
-let breakStartTime = null;
 const BREAK_DURATION = 60 * 1000;
 
 const items = [
@@ -31,7 +31,8 @@ const items = [
     startingPrice: 100,
     currentBid: 100,
     highestBidder: null,
-    endTime: minutesFromNow(2), // ends ~2 minutes from server start
+    endTime: minutesFromNow(1), // ends ~1 minute from server start
+    breakStartTime: null,
   },
   {
     id: "item-2",
@@ -39,7 +40,8 @@ const items = [
     startingPrice: 250,
     currentBid: 250,
     highestBidder: null,
-    endTime: minutesFromNow(3.5), // ends ~3.5 minutes from server start
+    endTime: minutesFromNow(1.5), // ends ~1.5 minutes from server start
+    breakStartTime: null,
   },
   {
     id: "item-3",
@@ -47,7 +49,8 @@ const items = [
     startingPrice: 800,
     currentBid: 800,
     highestBidder: null,
-    endTime: minutesFromNow(5), // ends ~5 minutes from server start
+    endTime: minutesFromNow(2), // ends ~2 minutes from server start
+    breakStartTime: null,
   },
 ];
 
@@ -81,31 +84,53 @@ const auctionStore = {
    * - Reset currentBid to startingPrice
    * - Clear highestBidder
    * - Set new endTime
+   * - Clear breakStartTime
    */
   reset() {
     const now = Date.now();
     items.forEach((item) => {
-      item.currentBid = item.startingPrice;
-      item.highestBidder = null;
-      // Reset times: item-1 (2m), item-2 (3.5m), item-3 (5m)
-      const durationMap = {
-        "item-1": 2,
-        "item-2": 3.5,
-        "item-3": 5,
-      };
-      const duration = durationMap[item.id] || 2;
-      item.endTime = now + duration * 60 * 1000;
+      this.resetItem(item.id);
     });
-    breakStartTime = null;
     return items;
   },
 
-  setBreakStartTime(time) {
-    breakStartTime = time;
+  /**
+   * Set break start time for a specific item.
+   * @param {string} itemId
+   * @param {number} time
+   */
+  setItemBreakStartTime(itemId, time) {
+    const item = items.find((i) => i.id === itemId);
+    if (item) {
+      item.breakStartTime = time;
+    }
   },
 
+  resetItem(itemId) {
+    const item = items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    const now = Date.now();
+    item.currentBid = item.startingPrice;
+    item.highestBidder = null;
+    item.breakStartTime = null;
+
+    const durationMap = {
+      "item-1": 1,
+      "item-2": 1.5,
+      "item-3": 2,
+    };
+    const duration = durationMap[itemId] || 2;
+    item.endTime = now + duration * 60 * 1000;
+
+    return item;
+  },
+
+  // Constant for external usage
+  BREAK_DURATION,
+
   getBreakStatus() {
-    return { breakStartTime, breakDuration: BREAK_DURATION };
+    return { breakStartTime: null, breakDuration: BREAK_DURATION };
   },
 };
 

@@ -3,7 +3,6 @@ import { formatCountdown } from '../../lib/time.js'
 export default function AuctionItemCard({
   item,
   serverNow,
-  breakStatus,
   isWinning,
   isOutbid,
   isUpdated,
@@ -42,21 +41,19 @@ export default function AuctionItemCard({
             Winning Bid: ₹{item.currentBid ?? 0}
           </div>
           <div style={{ marginTop: 12, fontSize: '0.875rem', color: '#6b7280' }}>
-            {breakStatus?.breakStartTime && serverNow ? (
+            {item.breakStartTime && serverNow ? (
               <>
                 Restarting In{' '}
                 <span style={{ fontWeight: 600, color: '#4b5563' }}>
                   {Math.max(
                     0,
-                    Math.ceil(
-                      (breakStatus.breakStartTime + breakStatus.breakDuration - serverNow) / 1000,
-                    ),
+                    Math.ceil((item.breakStartTime + 60000 - serverNow) / 1000),
                   )}
                   s
                 </span>
               </>
             ) : (
-              'Restarting soon...'
+              'Waiting for break...'
             )}
           </div>
         </div>
