@@ -6,7 +6,6 @@ export default function AuctionItemCard({
   isWinning,
   isOutbid,
   isUpdated,
-  isUpdated,
   onBidPlus,
   bidderName,
 }) {

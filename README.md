@@ -1,147 +1,98 @@
-# Levich-Internship-Challenge
+# Levich Internship Challenge
 ## Real-Time Auction System
 
-This is a **modularized full-stack project** with:
-- 🔧 **Backend**: Express.js + Socket.io for real-time bidding
-- 🎨 **Frontend**: React + Vite for a responsive UI
+This is a **real-time auction platform** featuring live bidding, instant updates, and user identity tracking.
 
-### Project Structure
+- 🔧 **Backend**: Node.js, Express, Socket.io (Deployed on Render)
+- 🎨 **Frontend**: React, Vite, Plain CSS (Deployed on Vercel)
+
+### Features Implemented
+- **Live Bidding**: Real-time bid updates via Socket.io.
+- **User Identity**: Frontend-only identity (prompts for name), persisting across reloads.
+- **Responsive Dashboard**: Adaptive grid layout (Desktop to Mobile).
+- **Visual Feedback**:
+  - Green flash/badge for winning bids.
+  - Red flash/badge for outbid notifications.
+  - Live countdown timers.
+
+---
+
+## Project Structure
 ```
 .
-├── backend/              # Node.js backend (Express + Socket.io)
-│   ├── server.js        # Entry point; creates HTTP + Socket.io server
-│   ├── app.js           # Express app configuration (routes + middleware)
-│   ├── socket.js        # Socket.io event handlers for real-time bidding
-│   ├── auctionStore.js  # In-memory auction data store
-│   ├── test-socket.js   # Socket.io connection test
-│   └── Dockerfile       # Docker configuration for backend
+├── backend/              # Node.js backend
+│   ├── server.js        # Entry point (HTTP + Socket.io)
+│   ├── app.js           # Express app setup (CORS, Routes)
+│   ├── socket.js        # Socket.io event handlers (BID_PLACED, etc.)
+│   └── auctionStore.js  # In-memory auction state
 ├── frontend/            # React + Vite frontend
 │   ├── src/
-│   ├── index.html
-│   ├── .env.example     # Environment variables template
-│   ├── .env.local       # Local configuration (Git ignored)
-│   └── vite.config.js   # Vite configuration
-├── package.json         # Root dependencies
-└── nodemon.json         # Watch configuration for development
+│   │   ├── components/  # UI Components (AuctionItemCard, Layout)
+│   │   ├── pages/       # Page views (HomePage)
+│   │   ├── lib/         # Utilities (socket, http, time)
+│   │   └── hooks/       # Custom hooks (useServerNow)
+│   └── .env.local       # Local config
+└── package.json         # Root dependencies
 ```
 
 ## Getting Started
 
-### Backend Setup
+### 1. Backend Setup
 ```bash
-# Install dependencies (from root)
+# Install dependencies
 npm install
 
-# Start backend (development with auto-reload)
+# Start development server (port 3000)
 npm run dev
-
-# Or start without auto-reload
-npm start
 ```
 
-Backend listens on `http://localhost:3000` by default. Override with:
-```bash
-PORT=4000 npm start
-```
-
-### Frontend Setup
+### 2. Frontend Setup
 ```bash
 cd frontend
 
 # Install dependencies
 npm install
 
-# Create environment config
+# Configure Environment
 cp .env.example .env.local
-# Edit .env.local to point to your backend URL:
-# VITE_API_BASE_URL=http://localhost:3000  (local)
-# or
-# VITE_API_BASE_URL=https://your-railway-url  (production)
+```
 
-# Start development server
+**Edit `.env.local`**:
+```env
+# For local development:
+VITE_BACKEND_URL=http://localhost:3000
+
+# For production (if pointing to live backend):
+VITE_BACKEND_URL=https://levich-internship-challenge-vd39.onrender.com
+```
+
+```bash
+# Start frontend (port 5173)
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173` by default.
+---
+
+## Deployment Status
+
+**Backend** (Render): `https://levich-internship-challenge-vd39.onrender.com`
+**Frontend** (Vercel): `https://levich-internship-challenge-phi.vercel.app`
+
+### Configuration Notes
+- **CORS**: The backend is configured to accept requests ONLY from `localhost:5173` and the Vercel production domain.
+- **Environment**: Frontend strictly uses `import.meta.env.VITE_BACKEND_URL`. No hardcoded fallbacks are left in the code.
 
 ---
 
-## Deployment
+## API & Events
 
-### Backend (Already Deployed on Railway ✅)
-Your backend is deployed at: `https://brave-truth-production.up.railway.app`
+### REST API
+- `GET /items`: Returns `{ serverTime, items: [] }`
 
-- **Service Status**: ACTIVE (green)
-- **Region**: us-west2
-- **Auto-deploys** on push to `main`
-
-### Frontend (Options)
-
-#### Option 1: Netlify (Recommended)
-```bash
-npm install -g netlify-cli
-cd frontend
-netlify deploy
-```
-
-#### Option 2: Vercel
-```bash
-npm install -g vercel
-cd frontend
-vercel
-```
-
-#### Option 3: Railway (alongside backend)
-Create a new service in Railway dashboard and connect your repo.
-
----
-
-## Configuration
-
-### Environment Variables
-
-Create `frontend/.env.local` (Git ignored) with:
-```env
-# For local development:
-VITE_API_BASE_URL=http://localhost:3000
-
-# For production (Railway deployed backend):
-VITE_API_BASE_URL=https://brave-truth-production.up.railway.app
-```
-
-See `frontend/.env.example` for more details.
-
-## HTTP API
-
-- `GET /health` → `{ "status": "ok" }`
-- `GET /api/ping` → `{ "message": "pong" }`
-
-## Socket.io Events
-
-Connect to `ws://localhost:3000` (or your chosen port) using a Socket.io client.
-
-### Events (from client to server)
-
-- `message` – payload is forwarded to all clients:
-  - **Payload**: anything JSON-serializable.
-  - **Broadcast**: `io.emit("message", payload)`.
-
-- `join_room` – join a logical room:
-  - **Payload**: `room` (string).
-  - Notifies others in the room via `user_joined`.
-
-- `room_message` – send a message to a room:
-  - **Payload**: `{ room, message }`.
-  - Broadcasts `room_message` to all sockets in `room`.
-
-### Events (from server to clients)
-
-- `message` – broadcast from any `message` received.
-- `user_joined` – emitted to a room when someone joins.
-- `room_message` – room-scoped messages with metadata `{ room, message, from, timestamp }`.
-
-## Notes
-
-- CORS is configured to allow all origins by default. Tighten this for production.
-- All socket logic is centralized in `socket.js` to keep the structure modular and maintainable.
-
+### Socket.io Events
+| Event | Direction | Payload | Description |
+|-------|-----------|---------|-------------|
+| `BID_PLACED` | Client → Server | `{ itemId, amount, bidderId }` | User places a bid. |
+| `UPDATE_BID` | Server → All | `{ itemId, currentBid, ... }` | Broadcasts new highest bid. |
+| `OUTBID` | Server → Client | `{ itemId, reason }` | Sent to user if their bid is too low. |
+| `BID_ERROR` | Server → Client | `{ reason, message }` | Sent on validation failure. |
