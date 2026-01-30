@@ -72,6 +72,29 @@ const auctionStore = {
   getById(id) {
     return items.find((item) => item.id === id);
   },
+
+  /**
+   * Reset all auctions.
+   * - Reset currentBid to startingPrice
+   * - Clear highestBidder
+   * - Set new endTime
+   */
+  reset() {
+    const now = Date.now();
+    items.forEach((item) => {
+      item.currentBid = item.startingPrice;
+      item.highestBidder = null;
+      // Reset times: item-1 (2m), item-2 (3.5m), item-3 (5m)
+      const durationMap = {
+        "item-1": 2,
+        "item-2": 3.5,
+        "item-3": 5,
+      };
+      const duration = durationMap[item.id] || 2;
+      item.endTime = now + duration * 60 * 1000;
+    });
+    return items;
+  },
 };
 
 module.exports = {

@@ -7,13 +7,15 @@ This is a **real-time auction platform** featuring live bidding, instant updates
 - 🎨 **Frontend**: React, Vite, Plain CSS (Deployed on Vercel)
 
 ### Features Implemented
-- **Live Bidding**: Real-time bid updates via Socket.io.
-- **User Identity**: Frontend-only identity (prompts for name), persisting across reloads.
-- **Responsive Dashboard**: Adaptive grid layout (Desktop to Mobile).
-- **Visual Feedback**:
-  - Green flash/badge for winning bids.
-  - Red flash/badge for outbid notifications.
-  - Live countdown timers.
+- **Live Bidding**: Real-time bid updates via Socket.io with immediate UI reflection.
+- **User Identity**: Frontend-only identity system that remembers your name across sessions using `sessionStorage`.
+- **Responsive Dashboard**: Adaptive grid layout that scales seamlessly from mobile to desktop (1–4 columns).
+- **Smart Notifications**:
+  - **Winning Badge**: Green "You're Winning" badge when you hold the top bid.
+  - **Outbid Badge**: Red "Outbid" badge alerts you immediately when someone outbids you.
+  - **Live Animations**: Green flash for new bids, Red flash for outbid events.
+- **Auction Results**: Clear "Auction Ended" banner showing the final winner name and winning bid amount overlaying the card.
+- **Currency Standardization**: Consistent use of the Indian Rupee symbol (₹) for all price displays.
 
 ---
 
@@ -92,7 +94,7 @@ npm run dev
 ### Socket.io Events
 | Event | Direction | Payload | Description |
 |-------|-----------|---------|-------------|
-| `BID_PLACED` | Client → Server | `{ itemId, amount, bidderId }` | User places a bid. |
+| `BID_PLACED` | Client → Server | `{ itemId, amount, bidderId }` | User places a bid with their name. |
 | `UPDATE_BID` | Server → All | `{ itemId, currentBid, ... }` | Broadcasts new highest bid. |
 | `OUTBID` | Server → Client | `{ itemId, reason }` | Sent to user if their bid is too low. |
 | `BID_ERROR` | Server → Client | `{ reason, message }` | Sent on validation failure. |

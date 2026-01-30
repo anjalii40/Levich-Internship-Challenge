@@ -40,6 +40,9 @@ export default function AuctionItemCard({
           <div className="winner-banner__amount">
             Winning Bid: ₹{item.currentBid ?? 0}
           </div>
+          <div style={{ marginTop: 12, fontSize: '0.875rem', color: '#6b7280' }}>
+            Restarting soon...
+          </div>
         </div>
       ) : null}
 
