@@ -40,7 +40,7 @@ To handle race conditions (e.g., two users bidding the same amount simultaneousl
 ### 3. Automatic Restart (Demo-Friendly)
 To facilitate continuous review without manual server intervention:
 - **Active Phase**: Auctions run for fixed durations (2–5 minutes).
-- **Break Phase**: Once all auctions end, the system enters a 60-second break. Bids are rejected, and the UI shows "Restarting Soon".
+- **Break Phase**: Once all auctions end, the system enters a 60-second break. Bids are rejected, and the UI displays a live "Restarting In X s" countdown.
 - **Reset Phase**: The server automatically re-initializes all items with fresh timers and clears bid history.
 
 ### 4. Frontend-Only Identity
