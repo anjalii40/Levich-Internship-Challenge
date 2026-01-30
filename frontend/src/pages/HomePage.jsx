@@ -156,8 +156,24 @@ export default function HomePage() {
     return timeLeft > 0 && timeLeft <= 30000
   }).length
 
+  // Auto-dismiss errors
+  useEffect(() => {
+    if (bidError) {
+      const timer = setTimeout(() => setBidError(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [bidError])
+
   return (
     <section>
+      {bidError ? (
+        <div className="toast-container">
+          <div className="toast-message">
+            <span>⚠️</span> {bidError}
+          </div>
+        </div>
+      ) : null}
+
       <div className="page-header">
         {name ? (
           <div className="identity-chip">
@@ -192,11 +208,7 @@ export default function HomePage() {
         </p>
       ) : null}
       {error ? <p style={{ color: '#b91c1c' }}>Error: {error}</p> : null}
-      {bidError ? (
-        <div style={{ marginBottom: 16, padding: 12, backgroundColor: '#fef2f2', color: '#b91c1c', borderRadius: 8 }}>
-          {bidError}
-        </div>
-      ) : null}
+
 
       {!loading && !error ? (
         <>
