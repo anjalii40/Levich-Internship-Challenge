@@ -36,26 +36,37 @@ httpServer.listen(PORT, () => {
 
   // Automatic Auction Restart Logic
   const { auctionStore } = require("./auctionStore");
-  let breakStartTime = null;
-  const BREAK_DURATION_MS = 60 * 1000; // 60 seconds
 
   setInterval(() => {
     const now = Date.now();
     const items = auctionStore.getAll();
+    const { breakStartTime, breakDuration } = auctionStore.getBreakStatus();
+
+    // Check if everything ended
     const allEnded = items.every((item) => now >= item.endTime);
 
     if (allEnded) {
       if (!breakStartTime) {
         console.log("All auctions ended. Starting break period.");
-        breakStartTime = now;
-      } else if (now - breakStartTime >= BREAK_DURATION_MS) {
+        auctionStore.setBreakStartTime(now);
+
+        // Notify clients about break start
+        const status = auctionStore.getBreakStatus();
+        io.emit("UPDATE_BID", {
+          // Send a "dummy" update to trigger state sync or general status update
+          itemId: "ALL",
+          serverTime: now,
+          breakStatus: status,
+        });
+
+      } else if (now - breakStartTime >= breakDuration) {
         console.log("Break ended. Restarting auctions.");
         auctionStore.reset();
-        breakStartTime = null;
 
-        // Broadcast reset to all clients
-        // We emit UPDATE_BID for each item so clients refresh their state
+        // Notify clients about restart (breakStatus will be null from store)
+        const newStatus = auctionStore.getBreakStatus();
         const freshItems = auctionStore.getAll();
+
         freshItems.forEach((item) => {
           io.emit("UPDATE_BID", {
             itemId: item.id,
@@ -63,12 +74,10 @@ httpServer.listen(PORT, () => {
             highestBidder: item.highestBidder,
             endTime: item.endTime,
             serverTime: Date.now(),
+            breakStatus: newStatus,
           });
         });
       }
-    } else {
-      // If auctions are running, ensure breakStartTime is clear (e.g. manual restart)
-      breakStartTime = null;
     }
   }, 5000); // Check every 5 seconds
 });

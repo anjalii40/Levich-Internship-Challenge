@@ -17,7 +17,7 @@ function createApp() {
   const app = express();
 
   // CORS configuration
-  const allowedOrigins = [      
+  const allowedOrigins = [
     'http://localhost:5173',      // Local development (frontend - Vite)
     'https://levich-internship-challenge-phi.vercel.app', // Vercel frontend
   ];
@@ -44,14 +44,16 @@ function createApp() {
     res.json({ status: "ok" });
   });
 
-   // List auction items
+  // List auction items
   app.get("/items", (req, res) => {
     const serverTime = Date.now();
     const items = auctionStore.getAll();
+    const breakStatus = auctionStore.getBreakStatus();
 
     res.json({
       serverTime,
       items,
+      breakStatus,
     });
   });
 
@@ -65,11 +67,11 @@ function createApp() {
   //   res.status(404).json({ error: "Not found" });
   // });
   app.use((req, res, next) => {
-  if (req.path.startsWith("/socket.io")) {
-    return next();
-  }
-  res.status(404).json({ error: "Not found" });
-});
+    if (req.path.startsWith("/socket.io")) {
+      return next();
+    }
+    res.status(404).json({ error: "Not found" });
+  });
 
 
   // Basic error handler

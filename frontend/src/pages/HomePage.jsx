@@ -7,6 +7,7 @@ import { socket } from '../lib/socket.js'
 export default function HomePage() {
   const [items, setItems] = useState([])
   const [serverTime, setServerTime] = useState(null)
+  const [breakStatus, setBreakStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [bidError, setBidError] = useState(null)
@@ -27,6 +28,7 @@ export default function HomePage() {
         if (cancelled) return
         setItems(Array.isArray(data?.items) ? data.items : [])
         setServerTime(typeof data?.serverTime === 'number' ? data.serverTime : null)
+        setBreakStatus(data?.breakStatus ?? null)
       } catch (e) {
         if (cancelled) return
         setError(e instanceof Error ? e.message : 'Failed to load items')
@@ -51,6 +53,10 @@ export default function HomePage() {
       // Keep server clock synced from server-sent events.
       if (typeof payload.serverTime === 'number') {
         setServerTime(payload.serverTime)
+      }
+
+      if (payload.breakStatus !== undefined) {
+        setBreakStatus(payload.breakStatus)
       }
 
       setItems((prev) =>
@@ -159,6 +165,7 @@ export default function HomePage() {
                 key={item.id}
                 item={item}
                 serverNow={serverNow}
+                breakStatus={breakStatus}
                 isWinning={name && item.highestBidder === name}
                 isOutbid={lastOutbidItemId === item.id}
                 isUpdated={lastUpdatedItemId === item.id}

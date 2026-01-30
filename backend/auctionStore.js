@@ -21,6 +21,9 @@ const now = Date.now();
 // Helper to compute future timestamps in minutes from now
 const minutesFromNow = (minutes) => now + minutes * 60 * 1000;
 
+let breakStartTime = null;
+const BREAK_DURATION = 60 * 1000;
+
 const items = [
   {
     id: "item-1",
@@ -93,7 +96,16 @@ const auctionStore = {
       const duration = durationMap[item.id] || 2;
       item.endTime = now + duration * 60 * 1000;
     });
+    breakStartTime = null;
     return items;
+  },
+
+  setBreakStartTime(time) {
+    breakStartTime = time;
+  },
+
+  getBreakStatus() {
+    return { breakStartTime, breakDuration: BREAK_DURATION };
   },
 };
 
