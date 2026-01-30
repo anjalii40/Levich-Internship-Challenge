@@ -216,3 +216,52 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 }
+
+/* Winner Banner */
+.winner-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  text-align: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.winner-banner__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.winner-banner__name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #15803d;
+  margin-bottom: 4px;
+}
+
+.winner-banner__amount {
+  font-size: 1.125rem;
+  color: #374151;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

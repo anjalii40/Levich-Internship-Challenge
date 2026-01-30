@@ -29,17 +29,24 @@ export default function AuctionItemCard({
         {!isWinning && isOutbid && !isEnded ? (
           <span className="badge badge-outbid">{bidderName} — Outbid</span>
         ) : null}
-        {isEnded ? (
-          <span className="badge" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>
-            {item.highestBidder ? `Winner: ${item.highestBidder}` : 'Ended'}
-          </span>
-        ) : null}
       </div>
+
+      {isEnded ? (
+        <div className="winner-banner">
+          <div className="winner-banner__title">Auction Ended</div>
+          <div className="winner-banner__name">
+            Winner: {item.highestBidder || 'No Bids'}
+          </div>
+          <div className="winner-banner__amount">
+            Winning Bid: ₹{item.currentBid ?? 0}
+          </div>
+        </div>
+      ) : null}
 
       <div className="auction-card__status">
         <div className="auction-card__row">
           <span className="auction-card__label">Current Bid</span>
-          <span className="auction-card__value price">${item?.currentBid ?? 0}</span>
+          <span className="auction-card__value price">₹{item?.currentBid ?? 0}</span>
         </div>
         <div className="auction-card__row">
           <span className="auction-card__label">Time Left</span>
