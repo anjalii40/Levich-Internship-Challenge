@@ -163,7 +163,7 @@ export default function HomePage() {
           <div className="identity-chip">
             {name}
             <button className="btn-change-identity" onClick={handleChangeIdentity}>
-              (Change)
+              (Change your name)
             </button>
           </div>
         ) : null}
