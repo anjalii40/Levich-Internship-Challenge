@@ -1,4 +1,4 @@
-# Levich Internship Challenge – Real-Time Auction System
+# Real-Time Auction System
 
 ## Overview
 
