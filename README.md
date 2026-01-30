@@ -32,7 +32,11 @@ The primary engineering focus is on **real-time behavior**, **race-condition han
 
 ### System Architecture
 
-![System Architecture](docs/system_architecture.png)
+<p align="center">
+  <img src="docs/system_architecture.png" alt="System Architecture" width="650" />
+  <br>
+  <em>High-level architecture showing real-time socket communication.</em>
+</p>
 
 ### 1. Server-Authoritative Time
 The system relies entirely on **server time** for auction duration and state transitions. Clients passively receive time updates. This prevents client-side manipulation (e.g., changing system clock) from affecting the auction logic.
@@ -60,7 +64,7 @@ To keep the system lightweight and focused on real-time mechanics:
 
 ## Auction Lifecycle
 
-![Auction Lifecycle](docs/auction_lifecycle.png)
+
 
 1.  **Initialization**: Items load with specific, staggered end times.
 2.  **Bidding**: Users place bids. Highest bid is broadcasted to all.
