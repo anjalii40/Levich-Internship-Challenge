@@ -15,11 +15,14 @@ export default function AuctionItemCard({
       : null
 
   const isEnded = remainingMs !== null && remainingMs <= 0
+  const isEndingSoon = remainingMs !== null && remainingMs > 0 && remainingMs <= 30000
+  const isCritical = remainingMs !== null && remainingMs > 0 && remainingMs <= 10000
+
   const highlight = isUpdated || isWinning || isOutbid
 
   return (
     <article
-      className={`auction-card${highlight ? ' auction-card--highlight' : ''}${isUpdated ? ' auction-card--updated' : ''}${isOutbid ? ' auction-card--outbid' : ''}`}
+      className={`auction-card${highlight ? ' auction-card--highlight' : ''}${isUpdated ? ' auction-card--updated' : ''}${isOutbid ? ' auction-card--outbid' : ''}${isEndingSoon && !isEnded ? ' auction-card--ending-soon' : ''}`}
     >
       <div className="auction-card__header">
         <div className="auction-card__title">{item?.title ?? 'Untitled'}</div>
@@ -33,12 +36,14 @@ export default function AuctionItemCard({
 
       {isEnded ? (
         <div className="winner-banner">
-          <div className="winner-banner__title">Auction Ended</div>
+          <div className="winner-banner__title">
+            {item.highestBidder ? 'Winner' : 'Auction Ended'}
+          </div>
           <div className="winner-banner__name">
-            Winner: {item.highestBidder || 'No Bids'}
+            {item.highestBidder ? item.highestBidder : 'No Bids Placed'}
           </div>
           <div className="winner-banner__amount">
-            Winning Bid: ₹{item.currentBid ?? 0}
+            {item.highestBidder ? `Winning Bid: ₹${item.currentBid}` : '—'}
           </div>
           <div style={{ marginTop: 12, fontSize: '0.875rem', color: '#6b7280' }}>
             {item.breakStartTime && serverNow ? (
@@ -66,11 +71,20 @@ export default function AuctionItemCard({
         </div>
         <div className="auction-card__row">
           <span className="auction-card__label">Time Left</span>
-          <span className="auction-card__value">{formatCountdown(remainingMs)}</span>
+          <span className={`auction-card__value${isCritical ? ' timer-critical' : ''}`}>
+            {formatCountdown(remainingMs)}
+          </span>
         </div>
       </div>
 
       <div className="auction-card__actions">
+        {item.highestBidder || item.currentBid > item.startingPrice ? (
+          null // Logic check for "No bids yet"?
+          // Actually, let's just show text below button if no bids?
+          // The prompt asked for "No bids yet — be the first to bid" edge state messaging.
+          // Let's add it right above the button or as specific text when empty.
+        ) : null}
+
         <button
           type="button"
           className="btn-bid"
@@ -79,6 +93,11 @@ export default function AuctionItemCard({
         >
           Bid +10
         </button>
+        {!item.highestBidder && !isEnded && (
+          <div style={{ textAlign: 'center', marginTop: 8, fontSize: '0.75rem', color: '#6b7280' }}>
+            Be the first to bid!
+          </div>
+        )}
       </div>
     </article>
   )

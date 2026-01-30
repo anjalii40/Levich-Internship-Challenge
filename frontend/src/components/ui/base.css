@@ -327,3 +327,77 @@
     opacity: 0.7;
   }
 }
+
+/* Visual Hierarchy: Ending Soon */
+.auction-card--ending-soon {
+  border-color: #f97316;
+  box-shadow: 0 0 0 1px #f97316, 0 4px 6px -1px rgba(249, 115, 22, 0.1);
+}
+
+/* Micro-Animations: Critical Timer */
+.timer-critical {
+  color: #dc2626;
+  /* Red */
+  font-weight: 700;
+  animation: pulseTimer 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseTimer {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Winner Overlay Polish */
+.winner-banner {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.winner-banner__title {
+  color: #166534;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* User Identity Chip */
+.identity-chip {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+}
+
+.btn-change-identity {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  text-decoration: underline;
+}
+
+.btn-change-identity:hover {
+  text-decoration: none;
+  color: #1d4ed8;
+}

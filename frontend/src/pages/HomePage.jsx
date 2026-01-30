@@ -99,6 +99,13 @@ export default function HomePage() {
     }
   }, [name])
 
+  function handleChangeIdentity() {
+    if (confirm('Change your name? This will reload the page.')) {
+      sessionStorage.removeItem('bidderName')
+      window.location.reload()
+    }
+  }
+
   function handleBidPlus(item) {
     if (!item || !item.id) return
     const base =
@@ -152,6 +159,15 @@ export default function HomePage() {
   return (
     <section>
       <div className="page-header">
+        {name ? (
+          <div className="identity-chip">
+            {name}
+            <button className="btn-change-identity" onClick={handleChangeIdentity}>
+              (Change)
+            </button>
+          </div>
+        ) : null}
+
         <h1>Live Auction Dashboard</h1>
         <p>Place your bids in real-time. Highest bidder wins when time runs out.</p>
 
@@ -170,6 +186,11 @@ export default function HomePage() {
       </div>
 
       {loading ? <p>Loading items…</p> : null}
+      {!loading && !error && items.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#6b7280', marginTop: 40 }}>
+          Waiting for next round...
+        </p>
+      ) : null}
       {error ? <p style={{ color: '#b91c1c' }}>Error: {error}</p> : null}
       {bidError ? (
         <div style={{ marginBottom: 16, padding: 12, backgroundColor: '#fef2f2', color: '#b91c1c', borderRadius: 8 }}>
