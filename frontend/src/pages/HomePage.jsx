@@ -10,7 +10,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [bidError, setBidError] = useState(null)
-  const [socketId, setSocketId] = useState(socket.id ?? null)
+
   const [lastOutbidItemId, setLastOutbidItemId] = useState(null)
   const [lastUpdatedItemId, setLastUpdatedItemId] = useState(null)
 
@@ -42,28 +42,7 @@ export default function HomePage() {
     }
   }, [])
 
-  useEffect(() => {
-    function handleConnect() {
-      setSocketId(socket.id ?? null)
-    }
 
-    function handleDisconnect() {
-      setSocketId(null)
-    }
-
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
-
-    // In case we're already connected when this effect runs
-    if (socket.connected && socket.id && !socketId) {
-      setSocketId(socket.id)
-    }
-
-    return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
-    }
-  }, [socketId])
 
   useEffect(() => {
     function handleUpdateBid(payload) {
@@ -97,6 +76,18 @@ export default function HomePage() {
     }
   }, [])
 
+  // Identity state
+  const [name, setName] = useState(() => sessionStorage.getItem('bidderName') || '')
+
+  useEffect(() => {
+    if (!name) {
+      const raw = prompt('Enter your name to bid:')
+      const clean = raw?.trim() || `User${Math.floor(Math.random() * 1000)}`
+      sessionStorage.setItem('bidderName', clean)
+      setName(clean)
+    }
+  }, [name])
+
   function handleBidPlus(item) {
     if (!item || !item.id) return
     const base =
@@ -108,7 +99,9 @@ export default function HomePage() {
     const amount = base + 10
 
     setBidError(null)
-    socket.emit('BID_PLACED', { itemId: item.id, amount })
+    // Use the name as the stable bidderId rather than socket.id
+    // This allows identity distinctness across reloads if sessionStorage persists
+    socket.emit('BID_PLACED', { itemId: item.id, amount, bidderId: name })
   }
 
   useEffect(() => {
@@ -166,10 +159,11 @@ export default function HomePage() {
                 key={item.id}
                 item={item}
                 serverNow={serverNow}
-                isWinning={socketId != null && item.highestBidder === socketId}
+                isWinning={name && item.highestBidder === name}
                 isOutbid={lastOutbidItemId === item.id}
                 isUpdated={lastUpdatedItemId === item.id}
                 onBidPlus={() => handleBidPlus(item)}
+                bidderName={name}
               />
             ))}
           </div>

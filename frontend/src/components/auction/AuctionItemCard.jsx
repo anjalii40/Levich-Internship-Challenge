@@ -6,7 +6,9 @@ export default function AuctionItemCard({
   isWinning,
   isOutbid,
   isUpdated,
+  isUpdated,
   onBidPlus,
+  bidderName,
 }) {
   const remainingMs =
     typeof item?.endTime === 'number' && typeof serverNow === 'number'
@@ -23,12 +25,16 @@ export default function AuctionItemCard({
       <div className="auction-card__header">
         <div className="auction-card__title">{item?.title ?? 'Untitled'}</div>
         {isWinning && !isEnded ? (
-          <span className="badge badge-winning">Winning</span>
+          <span className="badge badge-winning">{bidderName} — You're Winning</span>
         ) : null}
         {!isWinning && isOutbid && !isEnded ? (
-          <span className="badge badge-outbid">Outbid</span>
+          <span className="badge badge-outbid">{bidderName} — Outbid</span>
         ) : null}
-        {isEnded ? <span className="badge" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>Ended</span> : null}
+        {isEnded ? (
+          <span className="badge" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>
+            {item.highestBidder ? `Winner: ${item.highestBidder}` : 'Ended'}
+          </span>
+        ) : null}
       </div>
 
       <div className="auction-card__status">
