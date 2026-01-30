@@ -15,33 +15,45 @@ The primary engineering focus is on **real-time behavior**, **race-condition han
 
 - **Live Bidding**: Real-time bid updates via Socket.io with immediate UI reflection.
 - **Race Condition Handling**: Server-side synchronous processing ensures only valid bids are accepted even under heavy concurrency.
-- **User Identity**: Lightweight, frontend-only identity system (persisted via `sessionStorage`).
-- **Responsive Dashboard**: Adaptive grid layout scaling from mobile (1 column) to desktop (4 columns).
+- **Independent Lifecycle**: Each auction item operates on its own independent timer and break cycle.
+- **User Identity**: Frontend-only identity system with a "Change Identity" chip in the dashbaord.
+- **Responsive Dashboard**: Adaptive grid layout with a polished, centered design.
+- **Global Status Bar**: Real-time summary of active auctions and those ending soon.
 - **Smart Notifications**:
   - **Winning Badge**: Green "You're Winning" indicator for the highest bidder.
   - **Outbid Badge**: Red "Outbid" indicator immediately alerting users when they lose the lead.
-  - **Live Animations**: Visual flash cues (Green/Red) for bid updates.
+  - **Visual Cues**: Amber borders for "Ending Soon" and red pulsing text for critical countdowns.
 - **Auction Results**: End-of-auction banner displaying the winner and final price.
-- **Automatic Restart**: Self-healing demo loop that resets auctions after a break period to allow continuous testing.
+- **Automatic Restart**: Self-healing demo loop where each item resets automatically after its own break period.
 
 ---
 
 ## Architecture & Design Decisions
 
+### System Architecture
+```mermaid
+graph TD
+    ClientA[Client A (React)] <-->|Socket.io| Server[Node.js Server]
+    ClientB[Client B (React)] <-->|Socket.io| Server
+    Server <-->|Read/Write| Store[In-Memory Auction Store]
+    Server -->|Interval Check| Lifecycle[Auction Lifecycle Manager]
+    Lifecycle -->|Update State| Store
+```
+
 ### 1. Server-Authoritative Time
 The system relies entirely on **server time** for auction duration and state transitions. Clients passively receive time updates. This prevents client-side manipulation (e.g., changing system clock) from affecting the auction logic.
 
-### 2. Synchronous Bid Processing
+### 2. Synchronous Bid Processing (Race Condition Handling)
 To handle race conditions (e.g., two users bidding the same amount simultaneously):
 - The server processes incoming `BID_PLACED` events synchronously in a single-threaded Node.js event loop.
 - The first valid bid processed updates the state.
-- Subsequent bids for the same amount or lower are rejected immediately with an `OUTBID` or `BID_ERROR` event.
+- **Example**: If User A ($50) and User B ($50) hit the server at the exact same millisecond, Node.js event loop picks one first. The second bid sees the new price ($50) and is rejected ($50 <= $50) with an `OUTBID` error.
 
-### 3. Automatic Restart (Demo-Friendly)
-To facilitate continuous review without manual server intervention:
-- **Active Phase**: Auctions run for fixed durations (2–5 minutes).
-- **Break Phase**: Once all auctions end, the system enters a 60-second break. Bids are rejected, and the UI displays a live "Restarting In X s" countdown.
-- **Reset Phase**: The server automatically re-initializes all items with fresh timers and clears bid history.
+### 3. Independent Item Lifecycle
+To demonstrate scalability and realism, each auction item runs independently:
+- **Active Phase**: Varied durations (30s to 2.5m) to ensure staggering finishes.
+- **Break Phase**: When an individual item ends, it enters a 60-second cool-down period.
+- **Reset Phase**: After its specific break, the item automatically re-initializes while others may still be active.
 
 ### 4. Frontend-Only Identity
 To keep the system lightweight and focused on real-time mechanics:
@@ -54,11 +66,31 @@ To keep the system lightweight and focused on real-time mechanics:
 
 ## Auction Lifecycle
 
-1.  **Initialization**: Items load with specific end times.
+```mermaid
+stateDiagram-v2
+    [*] --> Active
+    Active --> Ended: Timer reaches 0
+    Ended --> Break: Immediate Transition
+    Break --> Active: After 60s Break
+    Active --> Active: New Bid Placed
+```
+
+1.  **Initialization**: Items load with specific, staggered end times.
 2.  **Bidding**: Users place bids. Highest bid is broadcasted to all.
-3.  **End**: When `serverTime >= endTime`, the auction closes.
+3.  **End**: When `serverTime >= endTime` for a specific item, that auction closes.
 4.  **Result**: The final state is locked. A "Winner" banner overlays the item card.
-5.  **Restart Loop**: After the break period, the cycle repeats automatically.
+5.  **Restart Loop**: That specific item waits for its break duration, then resets and restarts automatically.
+
+---
+
+## UI Gallery
+
+> *Placeholders for screenshots*
+
+| Dashboard View | Winning State | Mobile View |
+|:---:|:---:|:---:|
+| ![Dashboard View](docs/dashboard-placeholder.png) | ![Winning State](docs/winning-placeholder.png) | ![Mobile View](docs/mobile-placeholder.png) |
+| *Real-time grid with status indicators* | *Winner overlay with restart timer* | *Responsive visual layout* |
 
 ---
 
@@ -67,7 +99,7 @@ To keep the system lightweight and focused on real-time mechanics:
 ```
 .
 ├── backend/              # Node.js + Express + Socket.io
-│   ├── server.js        # Entry point (HTTP server + Restart Loop)
+│   ├── server.js        # Entry point (HTTP server + Interval Loop)
 │   ├── app.js           # Express app configuration
 │   ├── socket.js        # Socket.io event handlers (Business Logic)
 │   └── auctionStore.js  # In-memory single-source-of-truth state
@@ -152,13 +184,10 @@ The following features were intentionally excluded to maintain focus on the core
 
 ---
 
-## Testing & Demo Instructions
-
-1.  **Open Multiple Clients**: Open the [Live Demo](https://levich-internship-challenge-phi.vercel.app) in two different browser windows (or Incognito mode).
-2.  **Set Different Names**: Use "User A" in one window and "User B" in the other.
-3.  **Bid Concurrently**: Place bids on the same item from both windows.
-4.  **Observe Sync**:
-    - Notice how the prices update instantly on both screens.
-    - See the "Winning" badge in one window and "Outbid" in the other.
-5.  **Wait for End**: Watch the timer hit zero. See the "Winner" banner appear.
-6.  **Observe Restart**: Wait ~60 seconds for the system to auto-reset and allow new bidding.
+## How to Test
+- [ ] **Open Multiple Clients**: Open the [Live Demo](https://levich-internship-challenge-phi.vercel.app) in two different browser windows (or Incognito mode).
+- [ ] **Identity Check**: Set unique names (e.g. "User A", "User B").
+- [ ] **Concurrent Bidding**: Place bids on the same item from both windows.
+- [ ] **Verify Sync**: Confirm prices update instantly and status badges (Winning/Outbid) reflect the correct state.
+- [ ] **Race Condition Check**: Try to bid simultaneously; only the first valid bid will be accepted.
+- [ ] **Lifecycle Verify**: Watch items end and auto-restart independently after their break period.
