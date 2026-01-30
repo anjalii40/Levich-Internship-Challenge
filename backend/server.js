@@ -9,9 +9,8 @@ const { registerSocketHandlers } = require("./socket");
 const PORT = process.env.PORT || 3000;
 const app = createApp();
 
-// CORS configuration for Socket.io
+// CORS configuration for Socket.io (frontend origins only)
 const allowedOrigins = [
-  'http://localhost:3000',      // Local development (backend)
   'http://localhost:5173',      // Local development (frontend - Vite)
   'https://levich-internship-challenge-phi.vercel.app', // Vercel frontend
 ];

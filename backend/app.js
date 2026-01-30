@@ -17,11 +17,9 @@ function createApp() {
   const app = express();
 
   // CORS configuration
-  const allowedOrigins = [
-    'http://localhost:3000',      // Local development (backend)
+  const allowedOrigins = [      
     'http://localhost:5173',      // Local development (frontend - Vite)
     'https://levich-internship-challenge-phi.vercel.app', // Vercel frontend
-    'https://brave-truth-production.up.railway.app', // Railway backend (for testing)
   ];
 
   const corsOptions = {
