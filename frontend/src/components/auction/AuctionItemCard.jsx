@@ -13,30 +13,42 @@ export default function AuctionItemCard({
       ? item.endTime - serverNow
       : null
 
+  const isEnded = remainingMs !== null && remainingMs <= 0
   const highlight = isUpdated || isWinning || isOutbid
 
   return (
     <article
-      className={`auction-card${highlight ? ' auction-card--highlight' : ''}`}
-      style={{ border: '1px solid #e5e7eb', padding: 12 }}
+      className={`auction-card${highlight ? ' auction-card--highlight' : ''}${isUpdated ? ' auction-card--updated' : ''}${isOutbid ? ' auction-card--outbid' : ''}`}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontWeight: 600 }}>{item?.title ?? 'Untitled'}</div>
-        {isWinning ? (
-          <span style={{ color: '#166534', fontSize: 12 }}>You&apos;re winning</span>
+      <div className="auction-card__header">
+        <div className="auction-card__title">{item?.title ?? 'Untitled'}</div>
+        {isWinning && !isEnded ? (
+          <span className="badge badge-winning">Winning</span>
         ) : null}
-        {!isWinning && isOutbid ? (
-          <span style={{ color: '#b91c1c', fontSize: 12 }}>Outbid</span>
+        {!isWinning && isOutbid && !isEnded ? (
+          <span className="badge badge-outbid">Outbid</span>
         ) : null}
+        {isEnded ? <span className="badge" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>Ended</span> : null}
       </div>
-      <div style={{ marginTop: 6 }}>
-        Current bid: <strong>{item?.currentBid ?? '—'}</strong>
+
+      <div className="auction-card__status">
+        <div className="auction-card__row">
+          <span className="auction-card__label">Current Bid</span>
+          <span className="auction-card__value price">${item?.currentBid ?? 0}</span>
+        </div>
+        <div className="auction-card__row">
+          <span className="auction-card__label">Time Left</span>
+          <span className="auction-card__value">{formatCountdown(remainingMs)}</span>
+        </div>
       </div>
-      <div style={{ marginTop: 6 }}>
-        Time left: <strong>{formatCountdown(remainingMs)}</strong>
-      </div>
-      <div style={{ marginTop: 8 }}>
-        <button type="button" onClick={onBidPlus} disabled={!onBidPlus}>
+
+      <div className="auction-card__actions">
+        <button
+          type="button"
+          className="btn-bid"
+          onClick={onBidPlus}
+          disabled={!onBidPlus || isEnded}
+        >
           Bid +10
         </button>
       </div>

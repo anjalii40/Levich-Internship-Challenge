@@ -141,27 +141,26 @@ export default function HomePage() {
 
   return (
     <section>
-      <h1>Realtime app scaffold</h1>
-      <p>This is a clean starter layout. Business logic and realtime events come next.</p>
+      <div className="page-header">
+        <h1>Auction Dashboard</h1>
+        <p>Place your bids in real-time. Highest bidder wins when time runs out.</p>
+      </div>
 
       {loading ? <p>Loading items…</p> : null}
       {error ? <p style={{ color: '#b91c1c' }}>Error: {error}</p> : null}
-      {bidError ? <p style={{ color: '#b45309' }}>Bid error: {bidError}</p> : null}
+      {bidError ? (
+        <div style={{ marginBottom: 16, padding: 12, backgroundColor: '#fef2f2', color: '#b91c1c', borderRadius: 8 }}>
+          {bidError}
+        </div>
+      ) : null}
 
       {!loading && !error ? (
         <>
-          <div style={{ marginTop: 16 }}>
-            <strong>serverTime</strong>: {serverTime ?? '—'}
+          <div style={{ marginBottom: 24, fontSize: '0.875rem', color: '#6b7280' }}>
+            Server Time: <span style={{ fontFamily: 'monospace' }}>{new Date(serverTime).toLocaleTimeString()}</span>
           </div>
 
-          <div
-            style={{
-              marginTop: 16,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 12,
-            }}
-          >
+          <div className="auction-grid">
             {items.map((item) => (
               <AuctionItemCard
                 key={item.id}
