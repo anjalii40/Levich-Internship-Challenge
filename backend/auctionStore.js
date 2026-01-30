@@ -11,6 +11,7 @@
  * - highestBidder
  * - endTime (timestamp in ms since epoch)
  * - breakStartTime (timestamp in ms when break started, or null if active)
+ * - durationMinutes (initial duration for resets)
  *
  * NOTE:
  * - This is purely in-memory. Data is lost on server restart.
@@ -31,6 +32,7 @@ const items = [
     startingPrice: 100,
     currentBid: 100,
     highestBidder: null,
+    durationMinutes: 1,
     endTime: minutesFromNow(1), // ends ~1 minute from server start
     breakStartTime: null,
   },
@@ -40,6 +42,7 @@ const items = [
     startingPrice: 250,
     currentBid: 250,
     highestBidder: null,
+    durationMinutes: 1.5,
     endTime: minutesFromNow(1.5), // ends ~1.5 minutes from server start
     breakStartTime: null,
   },
@@ -49,7 +52,28 @@ const items = [
     startingPrice: 800,
     currentBid: 800,
     highestBidder: null,
+    durationMinutes: 2,
     endTime: minutesFromNow(2), // ends ~2 minutes from server start
+    breakStartTime: null,
+  },
+  {
+    id: "item-4",
+    title: "Rare Stamp",
+    startingPrice: 50,
+    currentBid: 50,
+    highestBidder: null,
+    durationMinutes: 0.5,
+    endTime: minutesFromNow(0.5), // ends ~30 seconds from server start
+    breakStartTime: null,
+  },
+  {
+    id: "item-5",
+    title: "Signed Guitar",
+    startingPrice: 1200,
+    currentBid: 1200,
+    highestBidder: null,
+    durationMinutes: 2.5,
+    endTime: minutesFromNow(2.5), // ends ~2.5 minutes from server start
     breakStartTime: null,
   },
 ];
@@ -115,12 +139,8 @@ const auctionStore = {
     item.highestBidder = null;
     item.breakStartTime = null;
 
-    const durationMap = {
-      "item-1": 1,
-      "item-2": 1.5,
-      "item-3": 2,
-    };
-    const duration = durationMap[itemId] || 2;
+    // Use stored duration or default to 2 minutes
+    const duration = item.durationMinutes || 2;
     item.endTime = now + duration * 60 * 1000;
 
     return item;

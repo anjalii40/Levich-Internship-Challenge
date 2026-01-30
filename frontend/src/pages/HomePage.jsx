@@ -143,11 +143,30 @@ export default function HomePage() {
     }
   }, [])
 
+  const liveCount = items.filter((i) => i.endTime > serverNow).length
+  const endingSoonCount = items.filter((i) => {
+    const timeLeft = i.endTime - serverNow
+    return timeLeft > 0 && timeLeft <= 30000
+  }).length
+
   return (
     <section>
       <div className="page-header">
-        <h1>Auction Dashboard</h1>
+        <h1>Live Auction Dashboard</h1>
         <p>Place your bids in real-time. Highest bidder wins when time runs out.</p>
+
+        {!loading && !error ? (
+          <div className="auction-status-bar">
+            <div className="status-indicator">
+              <span className="status-dot"></span>
+              {liveCount} Auctions Live
+            </div>
+            <div className="status-separator">·</div>
+            <div className={`status-indicator${endingSoonCount > 0 ? ' status-urgent' : ''}`}>
+              {endingSoonCount} Ending Soon
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {loading ? <p>Loading items…</p> : null}
